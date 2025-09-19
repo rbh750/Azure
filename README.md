@@ -18,7 +18,15 @@ Provides integration with Azure Application Insights:
 - Enables distributed tracing and telemetry
 - Useful for monitoring and diagnostics
 
-### 2. BlobStoragePushService
+### 2. BlobStorageService
+**Location:** `Service.Azure/Storage/Blob/BlobStorageService.cs`
+
+Handles general operations for Azure Blob Storage:
+- Upload, download, and delete blobs
+- List containers and blobs
+- Manage access policies and metadata
+
+### 3. BlobStoragePushService
 **Location:** `Service.Azure/Storage/Blob/BlobStoragePushService.cs`
 
 Specialized for pushing batches of data to Blob Storage:
@@ -26,7 +34,7 @@ Specialized for pushing batches of data to Blob Storage:
 - Batch operations
 - Customizable blob naming
 
-### 3. ContainerInstanceService
+### 4. ContainerInstanceService
 **Location:** `Service.Azure/Docker/ContainerInstanceService.cs`
 
 Manages Azure Container Instances:
@@ -34,7 +42,7 @@ Manages Azure Container Instances:
 - Configure container groups and networking
 - Integrates with Azure Container Registry
 
-### 4. CosmosDbService
+### 5. CosmosDbService
 **Location:** `Service.Azure/CosmosDb/CosmosDbService.cs`
 
 Handles operations for Azure Cosmos DB:
@@ -42,14 +50,14 @@ Handles operations for Azure Cosmos DB:
 - Querying with SQL-like syntax
 - Partition key and throughput management
 
-### 5. KeyVaultService
+### 6. KeyVaultService
 **Location:** `Service.Azure/KeyVault/KeyVaultService.cs`
 
 Manages secrets and certificates in Azure Key Vault:
 - Retrieve and set secrets
 - Certificate management
 
-### 6. ServiceBusService
+### 7. ServiceBusService
 **Location:** `Service.Azure/ServiceBus/ServiceBusService.cs`
 
 Handles Azure Service Bus messaging:
@@ -57,7 +65,7 @@ Handles Azure Service Bus messaging:
 - Dead-letter handling
 - Integrated retry policies
 
-### 7. TableStorageService
+### 8. TableStorageService
 **Location:** `Service.Azure/Storage/Table/TableStorageService.cs`
 
 Handles CRUD operations for Azure Table Storage:
@@ -118,7 +126,7 @@ All services require Azure resource connection strings and settings, typically p
 ### How to Get Each Value from Azure Portal
 
 - **Application Insights Connection String** (for AppInsightsTelemetryService): Go to your Application Insights resource > Overview > Copy the Connection String.
-- **Blob Storage Connection String** (for BlobStoragePushService): Go to your Storage Account > Access keys > Copy the Connection string.
+- **Blob Storage Connection String** (for BlobStorageService): Go to your Storage Account > Access keys > Copy the Connection string.
 - **Cosmos DB Connection String & Database Name** (for CosmosDbService): Go to your Cosmos DB account > Keys > Copy the PRIMARY CONNECTION STRING. Database name is under Data Explorer.
 - **Container Registry Server/UserName/Password** (for ContainerInstanceService): Go to your Container Registry > Access Keys. 
   - **Server**: Copy the Login server value.
