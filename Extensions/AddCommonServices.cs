@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
+using Service.AppInsights;
 using Service.Azure.AppInsights;
 using Service.Azure.CosmosDb;
 using Service.Azure.Docker;
@@ -38,7 +39,7 @@ public static class AddCommonServices
         AddApplicationInsights(services);
         AddCosmosDbService(services);
         AddDockerServices(services);
-        AddEntraPublicServices(services);
+        AddEntraSettings(services);
         AddKeyVaultService(services);
         AddServiceBusService(services);
         AddStorageService(services);
@@ -61,6 +62,13 @@ public static class AddCommonServices
             appInsightsSettings.CallerEnvironment = config["Azure:AppInsights:CallerEnvironment"]!;
             appInsightsSettings.ConnectionString = config["Azure:AppInsights:ConnectionString"]!;
             appInsightsSettings.DeveloperMode = Convert.ToBoolean(config["Azure:AppInsights:DeveloperMode"]);
+            appInsightsSettings.Resources = new Resources
+            {
+                ResourceGroupName = config["Azure:AppInsights:Resources:ResourceGroupName"]!,
+                ResourceNameApi = config["Azure:AppInsights:Resources:ResourceNameApi"]!,
+                ResourceNameWebJobs = config["Azure:AppInsights:Resources:ResourceNameWebJobs"]!,
+                SubscriptionId = config["Azure:AppInsights:Resources:SubscriptionId"]!
+            };
         }
 
         string serviceName = "Application Insights:";
@@ -70,6 +78,12 @@ public static class AddCommonServices
             { CallerId: null or "" } => $"{serviceName} caller id is required",
             { CallerEnvironment: null or "" } => $"{serviceName} caller environment is required",
             { ConnectionString: null or "" } => $"{serviceName} connection string is required",
+            { TenantId: null } => $"{serviceName} tenant id is required",
+            { Resources: null } => $"{serviceName} resources are required",
+            { Resources.ResourceGroupName: null } => $"{serviceName} resource group name is required",
+            { Resources.ResourceNameApi: null } => $"{serviceName} resource name API is required",
+            { Resources.ResourceNameWebJobs: null } => $"{serviceName} resource name Webjob is required",
+            { Resources.SubscriptionId: null } => $"{serviceName} subscription Id is required",
             _ => null
         };
 
@@ -82,11 +96,14 @@ public static class AddCommonServices
         {
             options.ConnectionString = appInsightsSettings.ConnectionString!;
             options.DeveloperMode = appInsightsSettings.DeveloperMode;
+            options.Resources = appInsightsSettings.Resources!;
             options.CallerId = appInsightsSettings.CallerId!;
             options.CallerEnvironment = appInsightsSettings.CallerEnvironment!;
+            options.Resources = appInsightsSettings.Resources!;
         });
 
         services.AddScoped<IAppInsightsTelemetryService, AppInsightsTelemetryService>();
+        services.AddScoped<IAppInsightsQueryService, AppInsightsQueryService>();
     }
 
     private static void AddCosmosDbService(IServiceCollection services)
@@ -141,7 +158,7 @@ public static class AddCommonServices
         services.AddScoped<ICosmosDbService, CosmosDbService>();
     }
 
-    private static void AddEntraPublicServices(IServiceCollection services)
+    private static void AddEntraSettings(IServiceCollection services)
     {
         EntraSettings entraSettings = new();
 
@@ -152,10 +169,13 @@ public static class AddCommonServices
         else
         {
             entraSettings.PublicAuth.ClientId = config!["Entra:PublicAuth:ClientId"]!;
-            entraSettings.KeyVaultAuth.ClientId = config["Entra:KeyVaultAuth:ClientId"]!;
-            entraSettings.KeyVaultAuth.Secret = config["Entra:KeyVaultAuth:Secret"]!;
-            entraSettings.KeyVaultAuth.TenantId = config["Entra:KeyVaultAuth:TenantId"]!;
-            entraSettings.KeyVaultAuth.KeyVaultUrl = config["Entra:KeyVaultAuth:KeyVaultUrl"]!;
+            entraSettings.KeyVaultAuth.ClientId = config["Entra:KeyVaultApp:ClientId"]!;
+            entraSettings.KeyVaultAuth.Secret = config["Entra:KeyVaultApp:Secret"]!;
+            entraSettings.KeyVaultAuth.TenantId = config["Entra:KeyVaultApp:TenantId"]!;
+            entraSettings.KeyVaultAuth.KeyVaultUrl = config["Entra:KeyVaultApp:KeyVaultUrl"]!;
+            entraSettings.AppInsightsAuth.ClientId = config["Entra:AppInsightsApp:ClientId"]!;
+            entraSettings.AppInsightsAuth.Secret = config["Entra:AppInsightsApp:Secret"]!;
+            entraSettings.AppInsightsAuth.TenantId = config["Entra:AppInsightsApp:TenantId"]!;
         }
 
         string serviceName = "Entra:";
@@ -178,6 +198,9 @@ public static class AddCommonServices
             options.KeyVaultAuth.Secret = entraSettings.KeyVaultAuth.Secret;
             options.KeyVaultAuth.TenantId = entraSettings.KeyVaultAuth.TenantId;
             options.KeyVaultAuth.KeyVaultUrl = entraSettings.KeyVaultAuth.KeyVaultUrl;
+            options.AppInsightsAuth.ClientId = entraSettings.AppInsightsAuth.ClientId;
+            options.AppInsightsAuth.Secret = entraSettings.AppInsightsAuth.Secret;
+            options.AppInsightsAuth.TenantId = entraSettings.AppInsightsAuth.TenantId;
         });
     }
 
